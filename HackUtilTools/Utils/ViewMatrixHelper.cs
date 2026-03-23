@@ -56,21 +56,43 @@ namespace UtilCrackTools.Utils
             return false;
         }
 
+        public static double CalculateDistance(double x, double y, int screenWidth, int screenHeight, double distance, string[] nvResultNearest, out string[] nvNewResultNearest)
+        {
+
+            double dX = x - screenWidth;
+            double dY = y - screenHeight;
+            double newDistnce = Math.Sqrt(dX * dX + dY * dY);
+
+            if(newDistnce < distance)
+            {
+                nvNewResultNearest = new string[] { x.ToString("F2"), y.ToString("F2") };
+                return newDistnce;
+            }
+            else
+            {
+                nvNewResultNearest = nvResultNearest;
+                return distance;
+            }
+        }
+
         public static void InspectMatrix(int screenWidth, int screenHeight, string memoryArea, string vectorString, int maxSearchRange, Corner corner,
-                                         out string correctWindow, out string resultType, out string[] result, out string[] nvResultTr, out string[] nvResultDef)
+                                         out string correctWindow, out string resultType, out string[] result, out string[] nvResultTr, out string[] nvResultDef, out string[] nvResultNearest)
         {
             correctWindow = String.Empty;
             resultType = String.Empty;
-            result = null;
+            result = new string[] { 0.ToString("F4"), 0.ToString("F4"), 0.ToString("F4") }; ;
             nvResultTr = null;
             nvResultDef = null;
+
+            double distance = double.MaxValue;
+            nvResultNearest = null;
 
             string[] memoryAreaParts = memoryArea.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
             int matrixLength = 4 * 4;
 
             for (int i = 0; i <= memoryAreaParts.Length - matrixLength; i++)
             {
-                bool IsCorrectWindow = false;
+                bool isCorrectWindow = false;
 
                 string[] searchWindow = new string[matrixLength];
                 Array.Copy(memoryAreaParts, i, searchWindow, 0, matrixLength);
@@ -93,27 +115,31 @@ namespace UtilCrackTools.Utils
                 switch (corner)
                 {
                     case Corner.LeftDown:
-                        IsCorrectWindow = CalculateCorner(x, y, maxSearchRange, 0, 0, defaultResult, searchWindow, out correctWindow, out result);
+                        isCorrectWindow = CalculateCorner(x, y, maxSearchRange, 0, 0, defaultResult, searchWindow, out correctWindow, out result);
+                        distance = CalculateDistance(x, y, 0, 0, distance, nvResultNearest, out nvResultNearest);
                         resultType = "Default";
                         break;
 
                     case Corner.LeftUp:
-                        IsCorrectWindow = CalculateCorner(x, y, maxSearchRange, 0, screenHeight, defaultResult, searchWindow, out correctWindow, out result);
+                        isCorrectWindow = CalculateCorner(x, y, maxSearchRange, 0, screenHeight, defaultResult, searchWindow, out correctWindow, out result);
+                        distance = CalculateDistance(x, y, 0, screenHeight, distance, nvResultNearest, out nvResultNearest);
                         resultType = "Default";
                         break;
 
                     case Corner.RightUp:
-                        IsCorrectWindow = CalculateCorner(x, y, maxSearchRange, screenWidth, screenHeight, defaultResult, searchWindow, out correctWindow, out result);
+                        isCorrectWindow = CalculateCorner(x, y, maxSearchRange, screenWidth, screenHeight, defaultResult, searchWindow, out correctWindow, out result);
+                        distance = CalculateDistance(x, y, screenWidth, screenHeight, distance, nvResultNearest, out nvResultNearest);
                         resultType = "Default";
                         break;
 
                     case Corner.RightDown:
-                        IsCorrectWindow = CalculateCorner(x, y, maxSearchRange, screenWidth, 0, defaultResult, searchWindow, out correctWindow, out result);
+                        isCorrectWindow = CalculateCorner(x, y, maxSearchRange, screenWidth, 0, defaultResult, searchWindow, out correctWindow, out result);
+                        distance = CalculateDistance(x, y, screenWidth, 0, distance, nvResultNearest, out nvResultNearest);
                         resultType = "Default";
                         break;
                 }
 
-                if(IsCorrectWindow is true)
+                if (isCorrectWindow is true)
                 {
                     break;
                 }
@@ -124,27 +150,31 @@ namespace UtilCrackTools.Utils
                 switch (corner)
                 {
                     case Corner.LeftDown:
-                        IsCorrectWindow = CalculateCorner(x, y, maxSearchRange, 0, 0, transposedResult, searchWindow, out correctWindow, out result);
+                        isCorrectWindow = CalculateCorner(x, y, maxSearchRange, 0, 0, transposedResult, searchWindow, out correctWindow, out result);
+                        distance = CalculateDistance(x, y, 0, 0, distance, nvResultNearest, out nvResultNearest);
                         resultType = "Transposed";
                         break;
 
                     case Corner.LeftUp:
-                        IsCorrectWindow = CalculateCorner(x, y, maxSearchRange, 0, screenHeight, transposedResult, searchWindow, out correctWindow, out result);
+                        isCorrectWindow = CalculateCorner(x, y, maxSearchRange, 0, screenHeight, transposedResult, searchWindow, out correctWindow, out result);
+                        distance = CalculateDistance(x, y, 0, screenHeight, distance, nvResultNearest, out nvResultNearest);
                         resultType = "Transposed";
                         break;
 
                     case Corner.RightUp:
-                        IsCorrectWindow = CalculateCorner(x, y, maxSearchRange, screenWidth, screenHeight, transposedResult, searchWindow, out correctWindow, out result);
+                        isCorrectWindow = CalculateCorner(x, y, maxSearchRange, screenWidth, screenHeight, transposedResult, searchWindow, out correctWindow, out result);
+                        distance = CalculateDistance(x, y, screenWidth, screenHeight, distance, nvResultNearest, out nvResultNearest);
                         resultType = "Transposed";
                         break;
 
                     case Corner.RightDown:
-                        IsCorrectWindow = CalculateCorner(x, y, maxSearchRange, screenWidth, 0, transposedResult, searchWindow, out correctWindow, out result);
+                        isCorrectWindow = CalculateCorner(x, y, maxSearchRange, screenWidth, 0, transposedResult, searchWindow, out correctWindow, out result);
+                        distance = CalculateDistance(x, y, screenWidth, 0, distance, nvResultNearest, out nvResultNearest);
                         resultType = "Transposed";
                         break;
                 }
 
-                if (IsCorrectWindow is true)
+                if (isCorrectWindow is true)
                 {
                     break;
                 }

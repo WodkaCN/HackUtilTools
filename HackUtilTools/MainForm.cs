@@ -111,7 +111,7 @@ namespace UtilCrackTools
             int screenHeight = int.Parse(tbScreenHeight.Text);
 
             ViewMatrixHelper.InspectMatrix(screenWidth, screenHeight, tbMemoryArea.Text, tbVector.Text, int.Parse(tbRange.Text), selectedCorner,
-                                           out string correctWindow, out string resultType, out string[] result, out string[] nvResultDef, out string[] nvResultTr);
+                                           out string correctWindow, out string resultType, out string[] result, out string[] nvResultDef, out string[] nvResultTr, out string[] nvResultnearest);
 
             tbCorrectWindow.Text = correctWindow;
 
@@ -120,6 +120,9 @@ namespace UtilCrackTools
 
             tbResultNVTr1.Text = nvResultTr[0];
             tbResultNVTr2.Text = nvResultTr[1];
+
+            tbResultNVNeares1.Text = nvResultnearest[0];
+            tbResultNVNeares2.Text = nvResultnearest[1];
 
             if (result != null)
             {

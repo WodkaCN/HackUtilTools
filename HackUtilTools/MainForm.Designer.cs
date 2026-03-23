@@ -86,6 +86,10 @@
             this.dragPanel = new System.Windows.Forms.Panel();
             this.label23 = new System.Windows.Forms.Label();
             this.btnExit = new System.Windows.Forms.Button();
+            this.label24 = new System.Windows.Forms.Label();
+            this.label25 = new System.Windows.Forms.Label();
+            this.tbResultNVNeares2 = new System.Windows.Forms.TextBox();
+            this.tbResultNVNeares1 = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.pnlCornerSelector.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -248,6 +252,10 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.label24);
+            this.groupBox1.Controls.Add(this.label25);
+            this.groupBox1.Controls.Add(this.tbResultNVNeares2);
+            this.groupBox1.Controls.Add(this.tbResultNVNeares1);
             this.groupBox1.Controls.Add(this.label22);
             this.groupBox1.Controls.Add(this.tbRange);
             this.groupBox1.Controls.Add(this.label21);
@@ -404,7 +412,7 @@
             // 
             this.label14.AutoSize = true;
             this.label14.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label14.Location = new System.Drawing.Point(553, 275);
+            this.label14.Location = new System.Drawing.Point(688, 275);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(36, 19);
             this.label14.TabIndex = 32;
@@ -414,7 +422,7 @@
             // 
             this.label15.AutoSize = true;
             this.label15.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label15.Location = new System.Drawing.Point(338, 275);
+            this.label15.Location = new System.Drawing.Point(473, 275);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(63, 19);
             this.label15.TabIndex = 31;
@@ -423,7 +431,7 @@
             // tbResultNVTr2
             // 
             this.tbResultNVTr2.Font = new System.Drawing.Font("Consolas", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.tbResultNVTr2.Location = new System.Drawing.Point(595, 268);
+            this.tbResultNVTr2.Location = new System.Drawing.Point(730, 268);
             this.tbResultNVTr2.MaxLength = 20;
             this.tbResultNVTr2.Name = "tbResultNVTr2";
             this.tbResultNVTr2.ReadOnly = true;
@@ -435,7 +443,7 @@
             // tbResultNVTr1
             // 
             this.tbResultNVTr1.Font = new System.Drawing.Font("Consolas", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.tbResultNVTr1.Location = new System.Drawing.Point(407, 268);
+            this.tbResultNVTr1.Location = new System.Drawing.Point(542, 268);
             this.tbResultNVTr1.MaxLength = 20;
             this.tbResultNVTr1.Name = "tbResultNVTr1";
             this.tbResultNVTr1.ReadOnly = true;
@@ -448,7 +456,7 @@
             // 
             this.label13.AutoSize = true;
             this.label13.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label13.Location = new System.Drawing.Point(553, 237);
+            this.label13.Location = new System.Drawing.Point(688, 237);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(36, 19);
             this.label13.TabIndex = 28;
@@ -458,7 +466,7 @@
             // 
             this.label12.AutoSize = true;
             this.label12.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label12.Location = new System.Drawing.Point(329, 237);
+            this.label12.Location = new System.Drawing.Point(464, 237);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(72, 19);
             this.label12.TabIndex = 27;
@@ -467,7 +475,7 @@
             // tbResultNVDef2
             // 
             this.tbResultNVDef2.Font = new System.Drawing.Font("Consolas", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.tbResultNVDef2.Location = new System.Drawing.Point(595, 230);
+            this.tbResultNVDef2.Location = new System.Drawing.Point(730, 230);
             this.tbResultNVDef2.MaxLength = 20;
             this.tbResultNVDef2.Name = "tbResultNVDef2";
             this.tbResultNVDef2.ReadOnly = true;
@@ -479,7 +487,7 @@
             // tbResultNVDef1
             // 
             this.tbResultNVDef1.Font = new System.Drawing.Font("Consolas", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.tbResultNVDef1.Location = new System.Drawing.Point(407, 230);
+            this.tbResultNVDef1.Location = new System.Drawing.Point(542, 230);
             this.tbResultNVDef1.MaxLength = 20;
             this.tbResultNVDef1.Name = "tbResultNVDef1";
             this.tbResultNVDef1.ReadOnly = true;
@@ -760,6 +768,50 @@
             this.btnExit.UseVisualStyleBackColor = false;
             this.btnExit.Click += new System.EventHandler(this.btnExit_Click);
             // 
+            // label24
+            // 
+            this.label24.AutoSize = true;
+            this.label24.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label24.Location = new System.Drawing.Point(688, 313);
+            this.label24.Name = "label24";
+            this.label24.Size = new System.Drawing.Size(36, 19);
+            this.label24.TabIndex = 109;
+            this.label24.Text = "[Y]";
+            // 
+            // label25
+            // 
+            this.label25.AutoSize = true;
+            this.label25.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label25.Location = new System.Drawing.Point(428, 313);
+            this.label25.Name = "label25";
+            this.label25.Size = new System.Drawing.Size(108, 19);
+            this.label25.TabIndex = 108;
+            this.label25.Text = "Nearest [X]";
+            // 
+            // tbResultNVNeares2
+            // 
+            this.tbResultNVNeares2.Font = new System.Drawing.Font("Consolas", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.tbResultNVNeares2.Location = new System.Drawing.Point(730, 306);
+            this.tbResultNVNeares2.MaxLength = 20;
+            this.tbResultNVNeares2.Name = "tbResultNVNeares2";
+            this.tbResultNVNeares2.ReadOnly = true;
+            this.tbResultNVNeares2.Size = new System.Drawing.Size(140, 32);
+            this.tbResultNVNeares2.TabIndex = 111;
+            this.tbResultNVNeares2.Text = "0";
+            this.tbResultNVNeares2.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // tbResultNVNeares1
+            // 
+            this.tbResultNVNeares1.Font = new System.Drawing.Font("Consolas", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.tbResultNVNeares1.Location = new System.Drawing.Point(542, 306);
+            this.tbResultNVNeares1.MaxLength = 20;
+            this.tbResultNVNeares1.Name = "tbResultNVNeares1";
+            this.tbResultNVNeares1.ReadOnly = true;
+            this.tbResultNVNeares1.Size = new System.Drawing.Size(140, 32);
+            this.tbResultNVNeares1.TabIndex = 110;
+            this.tbResultNVNeares1.Text = "0";
+            this.tbResultNVNeares1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -848,6 +900,10 @@
         private System.Windows.Forms.Panel dragPanel;
         private System.Windows.Forms.Button btnExit;
         private System.Windows.Forms.Label label23;
+        private System.Windows.Forms.Label label24;
+        private System.Windows.Forms.Label label25;
+        private System.Windows.Forms.TextBox tbResultNVNeares2;
+        private System.Windows.Forms.TextBox tbResultNVNeares1;
     }
 }
 
