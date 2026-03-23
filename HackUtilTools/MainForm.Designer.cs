@@ -588,7 +588,7 @@
             // 
             this.tbVector.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.tbVector.Location = new System.Drawing.Point(196, 50);
-            this.tbVector.MaxLength = 4;
+            this.tbVector.MaxLength = 20;
             this.tbVector.Name = "tbVector";
             this.tbVector.Size = new System.Drawing.Size(145, 26);
             this.tbVector.TabIndex = 12;
