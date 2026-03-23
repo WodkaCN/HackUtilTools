@@ -1,6 +1,7 @@
-﻿using MathNet.Numerics.LinearAlgebra;
+﻿using HackUtilTools.DTO;
+using MathNet.Numerics.LinearAlgebra;
 using System;
-using System.Windows.Forms;
+using System.Collections.Generic;
 
 namespace UtilCrackTools.Utils
 {
@@ -56,129 +57,204 @@ namespace UtilCrackTools.Utils
             return false;
         }
 
-        public static double CalculateDistance(double x, double y, int screenWidth, int screenHeight, double distance, string[] nvResultNearest, out string[] nvNewResultNearest)
+        private static double CalculateDistance(double x1, double y1, double x2, double y2)
         {
+            double dx = x1 - x2;
+            double dy = y1 - y2;
+            return Math.Sqrt(dx * dx + dy * dy);
+        }
 
-            double dX = x - screenWidth;
-            double dY = y - screenHeight;
-            double newDistnce = Math.Sqrt(dX * dX + dY * dY);
+        private static int GetMatrixLength(int left, int right)
+        {
+            return left * right;
+        }
 
-            if(newDistnce < distance)
+        private static string[] ParseMemoryArea(string memoryArea)
+        {
+            return memoryArea.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        private static IEnumerable<string[]> ExtractWindows(string[] memoryAreaParts, int windowSize)
+        {
+            for (int i = 0; i <= memoryAreaParts.Length - windowSize; i++)
             {
-                nvNewResultNearest = new string[] { x.ToString("F2"), y.ToString("F2") };
-                return newDistnce;
+                string[] window = new string[windowSize];
+                Array.Copy(memoryAreaParts, i, window, 0, windowSize);
+                yield return window;
             }
-            else
+        }
+        private static (Matrix<double> Matrix, Vector<double> Vector) ParseMatrixAndVector(string[] window, string vectorString)
+        {
+            double[] matrixValues = Array.ConvertAll(window, double.Parse);
+            double[] vectorValues = Array.ConvertAll(vectorString.Split(' '), double.Parse);
+
+            var matrix = Matrix<double>.Build.DenseOfRowMajor(4, 4, matrixValues);
+            var vector = Vector<double>.Build.Dense(vectorValues);
+
+            return (matrix, vector);
+        }
+        private static ScreenPoints CalculateScreenPoints(Matrix<double> matrix, Vector<double> vector, int screenWidth, int screenHeight)
+        {
+            return new ScreenPoints
             {
-                nvNewResultNearest = nvResultNearest;
-                return distance;
+                Default = WorldToScreenPoint(vector, matrix, screenWidth, screenHeight),
+                Transposed = WorldToScreenPoint(vector, matrix.Transpose(), screenWidth, screenHeight)
+            };
+        }
+
+        private static CornerPoint GetCornerPoint(Corner corner, int screenWidth, int screenHeight)
+        {
+            switch (corner)
+            {
+                case Corner.LeftDown:
+                    return new CornerPoint { X = 0, Y = 0 };
+                case Corner.LeftUp:
+                    return new CornerPoint { X = 0, Y = screenHeight };
+                case Corner.RightUp:
+                    return new CornerPoint { X = screenWidth, Y = screenHeight };
+                case Corner.RightDown:
+                    return new CornerPoint { X = screenWidth, Y = 0 };
+                default:
+                    throw new ArgumentException($"Unknown corner: {corner}");
+            }
+        }
+        private static void UpdateNearestPoint(WindowSearchContext context, double distance, double[] screenPoint)
+        {
+            if (distance < context.CurrentMinDistance)
+            {
+                context.CurrentMinDistance = distance;
+
+                context.NearestPoint = new[]
+                {
+                    screenPoint[0].ToString("F2"),
+                    screenPoint[1].ToString("F2")
+                };
             }
         }
 
-        public static void InspectMatrix(int screenWidth, int screenHeight, string memoryArea, string vectorString, int maxSearchRange, Corner corner,
-                                         out string correctWindow, out string resultType, out string[] result, out string[] nvResultTr, out string[] nvResultDef, out string[] nvResultNearest)
+        private static WindowProcessResult CheckAndProcessScreenPoint(string[] currentWindow, double[] screenPoint, int screenWidth, int screenHeight, Corner corner,
+                                                                      WindowSearchContext context, ScreenPoints screenPoints, InspectResult resultType)
         {
-            correctWindow = String.Empty;
-            resultType = String.Empty;
-            result = new string[] { 0.ToString("F4"), 0.ToString("F4"), 0.ToString("F4") }; ;
-            nvResultTr = null;
-            nvResultDef = null;
+            double x = screenPoint[0];
+            double y = screenPoint[1];
 
-            double distance = double.MaxValue;
-            nvResultNearest = null;
+            var cornerPoint = GetCornerPoint(corner, screenWidth, screenHeight);
 
-            string[] memoryAreaParts = memoryArea.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            int matrixLength = 4 * 4;
+            bool isCorrectWindow = CalculateCorner(
+                x, y,
+                context.MaxSearchRange,
+                cornerPoint.X, cornerPoint.Y,
+                screenPoint,
+                currentWindow,
+                out string correctWindow,
+                out string[] result);
 
-            for (int i = 0; i <= memoryAreaParts.Length - matrixLength; i++)
+            double distance = CalculateDistance(x, y, cornerPoint.X, cornerPoint.Y);
+
+            UpdateNearestPoint(context, distance, screenPoint);
+
+            var processResult = new WindowProcessResult
             {
-                bool isCorrectWindow = false;
+                IsWindowFound = isCorrectWindow,
+                Result = isCorrectWindow ? CreateResult(correctWindow, resultType, result, context.NearestPoint, screenPoints) : null,
+                ScreenPoints = screenPoints
+            };
 
-                string[] searchWindow = new string[matrixLength];
-                Array.Copy(memoryAreaParts, i, searchWindow, 0, matrixLength);
+            return processResult;
+        }
 
-                double[] matrixValues = Array.ConvertAll(searchWindow, double.Parse);
-                double[] vectorValues = Array.ConvertAll(vectorString.Split(' '), double.Parse);
+        private static WindowProcessResult ProcessWindow(string[] currentWindow, string vectorString, int screenWidth, int screenHeight,
+                                                         Corner corner, WindowSearchContext context)
+        {
+            var (matrix, vector) = ParseMatrixAndVector(currentWindow, vectorString);
+            var screenPoints = CalculateScreenPoints(matrix, vector, screenWidth, screenHeight);
 
-                var matrix = Matrix<double>.Build.DenseOfRowMajor(4, 4, matrixValues);
-                var vector = Vector<double>.Build.Dense(vectorValues);
+            // Проверка Default результата
+            var defaultCheck = CheckAndProcessScreenPoint(
+                currentWindow,
+                screenPoints.Default,
+                screenWidth,
+                screenHeight,
+                corner,
+                context,
+                screenPoints, new InspectResult { Type = InspectResult.ResultType.Default, Text = "Default" });
 
-                var defaultResult = WorldToScreenPoint(vector, matrix, screenWidth, screenHeight);
-                var transposedResult = WorldToScreenPoint(vector, matrix.Transpose(), screenWidth, screenHeight);
+            if (defaultCheck.IsWindowFound)
+                return defaultCheck;
 
-                nvResultDef = new string[] { defaultResult[0].ToString("F2"), defaultResult[1].ToString("F2") };
-                nvResultTr = new string[] { transposedResult[0].ToString("F2"), transposedResult[1].ToString("F2") };
+            // Проверка Transposed результата
+            var transposedCheck = CheckAndProcessScreenPoint(
+                currentWindow,
+                screenPoints.Transposed,
+                screenWidth,
+                screenHeight,
+                corner,
+                context,
+                screenPoints, new InspectResult { Type = InspectResult.ResultType.Default, Text = "Transposed" });
 
-                double x = defaultResult[0];
-                double y = defaultResult[1];
+            return transposedCheck;
+        }
 
-                switch (corner)
+        private static MatrixInspectionResult CreateResult(string correctWindow, InspectResult resultType, string[] result, string[] nearestResult, ScreenPoints screenPoints)
+        {
+            return new MatrixInspectionResult
+            {
+                CorrectWindow = correctWindow,
+                ResultType = resultType,
+                Result = result,
+                NvResultDef = new[]
                 {
-                    case Corner.LeftDown:
-                        isCorrectWindow = CalculateCorner(x, y, maxSearchRange, 0, 0, defaultResult, searchWindow, out correctWindow, out result);
-                        distance = CalculateDistance(x, y, 0, 0, distance, nvResultNearest, out nvResultNearest);
-                        resultType = "Default";
-                        break;
-
-                    case Corner.LeftUp:
-                        isCorrectWindow = CalculateCorner(x, y, maxSearchRange, 0, screenHeight, defaultResult, searchWindow, out correctWindow, out result);
-                        distance = CalculateDistance(x, y, 0, screenHeight, distance, nvResultNearest, out nvResultNearest);
-                        resultType = "Default";
-                        break;
-
-                    case Corner.RightUp:
-                        isCorrectWindow = CalculateCorner(x, y, maxSearchRange, screenWidth, screenHeight, defaultResult, searchWindow, out correctWindow, out result);
-                        distance = CalculateDistance(x, y, screenWidth, screenHeight, distance, nvResultNearest, out nvResultNearest);
-                        resultType = "Default";
-                        break;
-
-                    case Corner.RightDown:
-                        isCorrectWindow = CalculateCorner(x, y, maxSearchRange, screenWidth, 0, defaultResult, searchWindow, out correctWindow, out result);
-                        distance = CalculateDistance(x, y, screenWidth, 0, distance, nvResultNearest, out nvResultNearest);
-                        resultType = "Default";
-                        break;
+                    screenPoints.Default[0].ToString("F2"),
+                    screenPoints.Default[1].ToString("F2")
+                },
+                NvResultTr = new[]
+                {
+                    screenPoints.Transposed[0].ToString("F2"),
+                    screenPoints.Transposed[1].ToString("F2")
+                },
+                NvResultNearest = new[]
+                {
+                    string.Format("{0:F2}", nearestResult[0]),
+                    string.Format("{0:F2}", nearestResult[1]),
                 }
+            };
+        }
 
-                if (isCorrectWindow is true)
+        public static MatrixInspectionResult InspectMatrix(int screenWidth, int screenHeight, string memoryArea, string vectorString, int maxSearchRange, Corner corner)
+        {
+            var searchResult = new MatrixInspectionResult();
+            var context = new WindowSearchContext
+            {
+                ScreenWidth = screenWidth,
+                ScreenHeight = screenHeight,
+                MaxSearchRange = maxSearchRange,
+                Corner = corner,
+                CurrentMinDistance = double.MaxValue
+            };
+
+            string[] memoryAreaParts = ParseMemoryArea(memoryArea);
+            var currentWindows = ExtractWindows(memoryAreaParts, GetMatrixLength(4, 4));
+
+            foreach (var window in currentWindows)
+            {
+                var processResult = ProcessWindow(window, vectorString, screenWidth, screenHeight, corner, context);
+
+                if (processResult.IsWindowFound)
                 {
-                    break;
-                }
-
-                x = transposedResult[0];
-                y = transposedResult[1];
-
-                switch (corner)
-                {
-                    case Corner.LeftDown:
-                        isCorrectWindow = CalculateCorner(x, y, maxSearchRange, 0, 0, transposedResult, searchWindow, out correctWindow, out result);
-                        distance = CalculateDistance(x, y, 0, 0, distance, nvResultNearest, out nvResultNearest);
-                        resultType = "Transposed";
-                        break;
-
-                    case Corner.LeftUp:
-                        isCorrectWindow = CalculateCorner(x, y, maxSearchRange, 0, screenHeight, transposedResult, searchWindow, out correctWindow, out result);
-                        distance = CalculateDistance(x, y, 0, screenHeight, distance, nvResultNearest, out nvResultNearest);
-                        resultType = "Transposed";
-                        break;
-
-                    case Corner.RightUp:
-                        isCorrectWindow = CalculateCorner(x, y, maxSearchRange, screenWidth, screenHeight, transposedResult, searchWindow, out correctWindow, out result);
-                        distance = CalculateDistance(x, y, screenWidth, screenHeight, distance, nvResultNearest, out nvResultNearest);
-                        resultType = "Transposed";
-                        break;
-
-                    case Corner.RightDown:
-                        isCorrectWindow = CalculateCorner(x, y, maxSearchRange, screenWidth, 0, transposedResult, searchWindow, out correctWindow, out result);
-                        distance = CalculateDistance(x, y, screenWidth, 0, distance, nvResultNearest, out nvResultNearest);
-                        resultType = "Transposed";
-                        break;
-                }
-
-                if (isCorrectWindow is true)
-                {
+                    searchResult = processResult.Result;
                     break;
                 }
             }
+
+            if (string.IsNullOrEmpty(searchResult.CorrectWindow))
+            {
+                searchResult.NvResultNearest = context.NearestPoint;
+                searchResult.NvResultDef = new[] { "0.00", "0.00" };
+                searchResult.NvResultTr = new[] { "0.00", "0.00" };
+                searchResult.Result = new[] { "0.0000", "0.0000", "0.0000" };
+            }
+
+            return searchResult;
         }
     }
 }

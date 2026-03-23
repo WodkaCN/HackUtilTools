@@ -1,9 +1,9 @@
-﻿using System;
+﻿using HackUtilTools.DTO;
+using System;
 using System.Drawing;
-using System.Net.Http;
+using System.Reflection;
 using System.Windows.Forms;
 using UtilCrackTools.Utils;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace UtilCrackTools
 {
@@ -14,6 +14,9 @@ namespace UtilCrackTools
         public MainForm()
         {
             InitializeComponent();
+
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            lHeader.Text = $"{lHeader.Text} {assembly.GetName().Version}";
 
             tbAddress.Focus();
 
@@ -54,7 +57,7 @@ namespace UtilCrackTools
         }
 
         private void tbAddressDiff1_TextChanged(object sender, System.EventArgs e)
-        { 
+        {
             CalculateOffset();
         }
 
@@ -101,8 +104,8 @@ namespace UtilCrackTools
 
             if (value < 10)
                 tbRange.Text = "10";
-            else if (value > 50)
-                tbRange.Text = "50";
+            else if (value > 100)
+                tbRange.Text = "100";
         }
 
         private void btnInspect_Click(object sender, System.EventArgs e)
@@ -110,34 +113,35 @@ namespace UtilCrackTools
             int screenWidth = int.Parse(tbScreenWidth.Text);
             int screenHeight = int.Parse(tbScreenHeight.Text);
 
-            ViewMatrixHelper.InspectMatrix(screenWidth, screenHeight, tbMemoryArea.Text, tbVector.Text, int.Parse(tbRange.Text), selectedCorner,
-                                           out string correctWindow, out string resultType, out string[] result, out string[] nvResultDef, out string[] nvResultTr, out string[] nvResultnearest);
+            MatrixInspectionResult result = ViewMatrixHelper.InspectMatrix(screenWidth, screenHeight, tbMemoryArea.Text, tbVector.Text, int.Parse(tbRange.Text), selectedCorner);
 
-            tbCorrectWindow.Text = correctWindow;
+            tbCorrectWindow.Text = result.CorrectWindow;
 
-            tbResultNVDef1.Text = nvResultDef[0];
-            tbResultNVDef2.Text = nvResultDef[1];
+            tbResultNVDef1.Text = result.NvResultDef[0];
+            tbResultNVDef2.Text = result.NvResultDef[1];
 
-            tbResultNVTr1.Text = nvResultTr[0];
-            tbResultNVTr2.Text = nvResultTr[1];
+            tbResultNVTr1.Text = result.NvResultTr[0];
+            tbResultNVTr2.Text = result.NvResultTr[1];
 
-            tbResultNVNeares1.Text = nvResultnearest[0];
-            tbResultNVNeares2.Text = nvResultnearest[1];
+            tbResultNVNeares1.Text = result.NvResultNearest[0];
+            tbResultNVNeares2.Text = result.NvResultNearest[1];
 
-            if (result != null)
+            switch (result.ResultType.Type)
             {
-                lResultType.ForeColor = Color.DarkGreen;
-                lResultType.Text = resultType;
+                case InspectResult.ResultType.Default:
+                case InspectResult.ResultType.Transposed:
+                    lResultType.ForeColor = Color.DarkGreen;
+                    break;
+                default:
+                    lResultType.ForeColor = Color.Red;
+                    break;
+            }
 
-                tbResult1.Text = result[0];
-                tbResult2.Text = result[1];
-                tbResult3.Text = result[2];
-            }
-            else
-            {
-                lResultType.ForeColor = Color.Red;
-                lResultType.Text = "Not Valid Values";
-            }
+            lResultType.Text = result.ResultType.Text;
+
+            tbResult1.Text = result.Result[0];
+            tbResult2.Text = result.Result[1];
+            tbResult3.Text = result.Result[2];
         }
 
         private void textBoxHex_KeyPress(object sender, KeyPressEventArgs e)
@@ -193,7 +197,7 @@ namespace UtilCrackTools
 
         private void CalculateOffset()
         {
-            if(tbAddressDiff1.Text.Length >= 6 && tbAddressDiff2.Text.Length >= 6)
+            if (tbAddressDiff1.Text.Length >= 6 && tbAddressDiff2.Text.Length >= 6)
             {
                 tbOffsetDiff.Text = AddressHelper.CalculateOffset(tbAddressDiff1.Text, tbAddressDiff2.Text);
             }
@@ -207,11 +211,22 @@ namespace UtilCrackTools
             btnRDCorner.BackColor = SystemColors.ControlDark;
         }
 
+        private void DragWindow()
+        {
+            Message m = Message.Create(base.Handle, 0xa1, new IntPtr(2), IntPtr.Zero);
+            WndProc(ref m);
+        }
+
         private void dragPanel_MouseDown(object sender, MouseEventArgs e)
         {
             dragPanel.Capture = false;
-            Message m = Message.Create(base.Handle, 0xa1, new IntPtr(2), IntPtr.Zero);
-            WndProc(ref m);
+            DragWindow();
+        }
+
+        private void lHeader_MouseDown(object sender, MouseEventArgs e)
+        {
+            lHeader.Capture = false;
+            DragWindow();
         }
     }
 }

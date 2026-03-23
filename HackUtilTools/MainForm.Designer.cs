@@ -84,7 +84,7 @@
             this.tbAddressDiff1 = new System.Windows.Forms.TextBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.dragPanel = new System.Windows.Forms.Panel();
-            this.label23 = new System.Windows.Forms.Label();
+            this.lHeader = new System.Windows.Forms.Label();
             this.btnExit = new System.Windows.Forms.Button();
             this.label24 = new System.Windows.Forms.Label();
             this.label25 = new System.Windows.Forms.Label();
@@ -736,7 +736,7 @@
             // dragPanel
             // 
             this.dragPanel.BackColor = System.Drawing.Color.CornflowerBlue;
-            this.dragPanel.Controls.Add(this.label23);
+            this.dragPanel.Controls.Add(this.lHeader);
             this.dragPanel.Controls.Add(this.btnExit);
             this.dragPanel.Location = new System.Drawing.Point(-1, -1);
             this.dragPanel.Name = "dragPanel";
@@ -744,16 +744,17 @@
             this.dragPanel.TabIndex = 10;
             this.dragPanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.dragPanel_MouseDown);
             // 
-            // label23
+            // lHeader
             // 
-            this.label23.AutoSize = true;
-            this.label23.Font = new System.Drawing.Font("Consolas", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label23.ForeColor = System.Drawing.Color.White;
-            this.label23.Location = new System.Drawing.Point(9, 8);
-            this.label23.Name = "label23";
-            this.label23.Size = new System.Drawing.Size(190, 24);
-            this.label23.TabIndex = 9;
-            this.label23.Text = "Hack Util Tools";
+            this.lHeader.AutoSize = true;
+            this.lHeader.Font = new System.Drawing.Font("Consolas", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.lHeader.ForeColor = System.Drawing.Color.White;
+            this.lHeader.Location = new System.Drawing.Point(9, 8);
+            this.lHeader.Name = "lHeader";
+            this.lHeader.Size = new System.Drawing.Size(190, 24);
+            this.lHeader.TabIndex = 9;
+            this.lHeader.Text = "Hack Util Tools";
+            this.lHeader.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lHeader_MouseDown);
             // 
             // btnExit
             // 
@@ -899,7 +900,7 @@
         private System.Windows.Forms.Label label22;
         private System.Windows.Forms.Panel dragPanel;
         private System.Windows.Forms.Button btnExit;
-        private System.Windows.Forms.Label label23;
+        private System.Windows.Forms.Label lHeader;
         private System.Windows.Forms.Label label24;
         private System.Windows.Forms.Label label25;
         private System.Windows.Forms.TextBox tbResultNVNeares2;
